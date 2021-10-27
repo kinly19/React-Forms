@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 //============================== Notes ==============================================
 
 //Two main ways for fetching entered value
@@ -11,13 +11,22 @@ import { useRef, useState } from 'react';
 
 // preventDefault() - if the event does not get explicitly handled, its default action should not be taken as it normally would be.
 // The trim() method - removes whitespace from both ends of a string
+// combine enteredNameIsValid with enteredNameTouched for showing validation feedback
 //===================================================================================
 
 const SimpleInput = (props) => {
   
   //1st way storing entered values
   const [enteredName, setEnteredName] = useState('');
-  const [enteredNameisValid, setEnteredNameIsValid] = useState(true); //for providing validation feedback
+  const [enteredNameIsValid, setEnteredNameIsValid] = useState(false); //for providing validation feedback
+  const [enteredNameTouched, setEnteredNameTouched] = useState(false); 
+
+
+  useEffect (()=> {
+    if(enteredNameIsValid){
+      console.log('Entered Name Is Valid!')
+    }
+  },[enteredNameIsValid]);
 
   const nameInputChangeHandler = (event) => {
     setEnteredName(event.target.value);
@@ -29,6 +38,7 @@ const SimpleInput = (props) => {
 
   const formSubmissionHandler = (event)=> {
     event.preventDefault();
+    setEnteredNameTouched(true);
 
     //validation 
     if (enteredName.trim() == '') {
@@ -49,11 +59,12 @@ const SimpleInput = (props) => {
   };
 
   //using const helper with a ternary operator to change styled classes 
-  const nameInputClasses = enteredNameisValid
-    ? "form-control"
-    : "form-control invalid";
+  const nameInputIsInvalid = !enteredNameIsValid && enteredNameTouched; //have no input and input field was touched 
+  const nameInputClasses = nameInputIsInvalid
+    ? "form-control invalid"
+    : "form-control";
   //or directly inside of our jsx
-  //<div className={enteredNameisValid ? 'form-control': 'form-control invalid'}>
+  //<div className={nameInputIsInvalid ? 'form-control invalid': 'form-control'}>
 
   return (
     <form onSubmit={formSubmissionHandler}>
@@ -66,7 +77,7 @@ const SimpleInput = (props) => {
           onChange={nameInputChangeHandler}//1st method
           value={enteredName}
         />
-        {!enteredNameisValid && (<p className="error-text">Name Must Not Be Empty.</p>)}
+        {nameInputIsInvalid && (<p className="error-text">Name Must Not Be Empty.</p>)}
       </div>
       <div className="form-actions">
         <button>Submit</button>
