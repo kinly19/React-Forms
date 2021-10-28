@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 //============================== Notes ==============================================
 
 //Two main ways for fetching entered value
@@ -24,6 +24,12 @@ const SimpleInput = (props) => {
   const enteredNameIsValid = enteredName.trim() !== '';
   //if we have an empty string and the input field was touched(enteredNameTouched=true)
   const nameInputIsInvalid = !enteredNameIsValid && enteredNameTouched; 
+
+  let formIsValid = false;
+  
+  if (enteredNameIsValid) {
+   formIsValid=true;
+  }
 
   //updates state on each keystroke
   const nameInputChangeHandler = (event) => {
@@ -83,7 +89,7 @@ const SimpleInput = (props) => {
         {nameInputIsInvalid && (<p className="error-text">Name Must Not Be Empty.</p>)}
       </div>
       <div className="form-actions">
-        <button>Submit</button>
+        <button disabled={!formIsValid}>Submit</button>
       </div>
     </form>
   );
