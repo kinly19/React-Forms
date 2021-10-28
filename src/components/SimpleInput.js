@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 //============================== Notes ==============================================
 
 //Two main ways for fetching entered value
@@ -11,6 +11,7 @@ import { useRef, useState, useEffect } from 'react';
 
 // preventDefault() - if the event does not get explicitly handled, its default action should not be taken as it normally would be.
 // The trim() method - removes whitespace from both ends of a string
+// The onblur event - occurs when an object loses focus
 // combine enteredNameIsValid with enteredNameTouched for showing validation feedback
 //===================================================================================
 
@@ -18,22 +19,24 @@ const SimpleInput = (props) => {
   
   //1st way storing entered values
   const [enteredName, setEnteredName] = useState('');
-  const [enteredNameIsValid, setEnteredNameIsValid] = useState(false); //for providing validation feedback
-  const [enteredNameTouched, setEnteredNameTouched] = useState(false); 
+  const [enteredNameTouched, setEnteredNameTouched] = useState(false);
 
+  const enteredNameIsValid = enteredName.trim() !== '';
+  //if we have an empty string and the input field was touched(enteredNameTouched=true)
+  const nameInputIsInvalid = !enteredNameIsValid && enteredNameTouched; 
 
-  useEffect (()=> {
-    if(enteredNameIsValid){
-      console.log('Entered Name Is Valid!')
-    }
-  },[enteredNameIsValid]);
-
+  //updates state on each keystroke
   const nameInputChangeHandler = (event) => {
     setEnteredName(event.target.value);
   };
 
+  //handling onBlur event
+  const nameInputBlurHandler = (event) => {
+    setEnteredNameTouched(true);
+  };
+
   //2nd way using ref ==================
-  const nameInputRef = useRef();
+  // const nameInputRef = useRef();
   //====================================
 
   const formSubmissionHandler = (event)=> {
@@ -41,14 +44,13 @@ const SimpleInput = (props) => {
     setEnteredNameTouched(true);
 
     //validation 
-    if (enteredName.trim() == '') {
-      setEnteredNameIsValid(false);
+    if (!enteredNameIsValid) { 
       return; 
     }
-    setEnteredNameIsValid(true);
-
+   
     console.log(enteredName);
     setEnteredName('');
+    setEnteredNameTouched(false);
     
     //using refs to store input values after input
     // const enteredValue = nameInputRef.current.value;
@@ -58,11 +60,11 @@ const SimpleInput = (props) => {
     //nameInputRef.current.value=''; Not ideal dont manipulate the dom
   };
 
-  //using const helper with a ternary operator to change styled classes 
-  const nameInputIsInvalid = !enteredNameIsValid && enteredNameTouched; //have no input and input field was touched 
+  //using a const helper with a ternary operator to change styled classes 
   const nameInputClasses = nameInputIsInvalid
-    ? "form-control invalid"
+    ? "form-control invalid" //if nameInputIsInvalid is true
     : "form-control";
+
   //or directly inside of our jsx
   //<div className={nameInputIsInvalid ? 'form-control invalid': 'form-control'}>
 
@@ -71,10 +73,11 @@ const SimpleInput = (props) => {
       <div className={nameInputClasses}>
         <label htmlFor="name">Your Name</label>
         <input
-          ref={nameInputRef}//2nd method
+          // ref={nameInputRef}//2nd method
           type="text"
           id="name"
           onChange={nameInputChangeHandler}//1st method
+          onBlur={nameInputBlurHandler}
           value={enteredName}
         />
         {nameInputIsInvalid && (<p className="error-text">Name Must Not Be Empty.</p>)}
